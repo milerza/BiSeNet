@@ -29,13 +29,13 @@ class CamVid(torch.utils.data.Dataset):
         if not isinstance(image_path, list):
             image_path = [image_path]
         for image_path_ in image_path:
-            self.image_list.extend(glob.glob(os.path.join(image_path_, '*.png')))
+            self.image_list.extend(glob.glob(os.path.join(image_path_, '*.tiff')))
         self.image_list.sort()
         self.label_list = []
         if not isinstance(label_path, list):
             label_path = [label_path]
         for label_path_ in label_path:
-            self.label_list.extend(glob.glob(os.path.join(label_path_, '*.png')))
+            self.label_list.extend(glob.glob(os.path.join(label_path_, '*.tiff')))
         self.label_list.sort()
         # self.image_name = [x.split('/')[-1].split('.')[0] for x in self.image_list]
         # self.label_list = [os.path.join(label_path, x + '_L.png') for x in self.image_list]
