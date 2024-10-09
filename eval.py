@@ -24,13 +24,13 @@ def eval(model,dataloader, args, csv_path):
                 label = label.cuda()
             predict = model(data).squeeze()
             predict = reverse_one_hot(predict)
-            predict = np.array(predict)
+            predict = np.array(predict.cpu())
             # predict = colour_code_segmentation(np.array(predict), label_info)
 
             label = label.squeeze()
             if args.loss == 'dice':
                 label = reverse_one_hot(label)
-            label = np.array(label)
+            label = np.array(label.cpu())
             # label = colour_code_segmentation(np.array(label), label_info)
 
             precision = compute_global_accuracy(predict, label)
@@ -51,8 +51,8 @@ def main(params):
     # basic parameters
     parser = argparse.ArgumentParser()
     parser.add_argument('--checkpoint_path', type=str, default=None, required=True, help='The path to the pretrained weights of model')
-    parser.add_argument('--crop_height', type=int, default=720, help='Height of cropped/resized input image to network')
-    parser.add_argument('--crop_width', type=int, default=960, help='Width of cropped/resized input image to network')
+    parser.add_argument('--crop_height', type=int, default=1024, help='Height of cropped/resized input image to network')
+    parser.add_argument('--crop_width', type=int, default=1024, help='Width of cropped/resized input image to network')
     parser.add_argument('--data', type=str, default='/path/to/data', help='Path of training data')
     parser.add_argument('--batch_size', type=int, default=1, help='Number of images in each batch')
     parser.add_argument('--context_path', type=str, default="resnet101", help='The context path model you are using.')
@@ -65,7 +65,7 @@ def main(params):
     # create dataset and dataloader
     test_path = os.path.join(args.data, 'test')
     # test_path = os.path.join(args.data, 'train')
-    test_label_path = os.path.join(args.data, 'test_labels')
+    test_label_path = os.path.join(args.data, 'test_label')
     # test_label_path = os.path.join(args.data, 'train_labels')
     csv_path = os.path.join(args.data, 'class_dict.csv')
     dataset = CamVid(test_path, test_label_path, csv_path, scale=(args.crop_height, args.crop_width), mode='test')
@@ -95,10 +95,10 @@ def main(params):
 
 if __name__ == '__main__':
     params = [
-        '--checkpoint_path', 'path/to/ckpt',
-        '--data', '/path/to/CamVid',
+        '--checkpoint_path', 'checkpoints_18_sgd/best_dice_loss.pth',
+        '--data', 'dataset',
         '--cuda', '0',
         '--context_path', 'resnet18',
-        '--num_classes', '12'
+        '--num_classes', '10'
     ]
     main(params)

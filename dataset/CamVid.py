@@ -131,13 +131,13 @@ class CamVid(torch.utils.data.Dataset):
 
 if __name__ == '__main__':
     # data = CamVid('/path/to/CamVid/train', '/path/to/CamVid/train_labels', '/path/to/CamVid/class_dict.csv', (640, 640))
-    data = CamVid(['/data/sqy/CamVid/train', '/data/sqy/CamVid/val'],
-                  ['/data/sqy/CamVid/train_labels', '/data/sqy/CamVid/val_labels'], '/data/sqy/CamVid/class_dict.csv',
-                  (720, 960), loss='crossentropy', mode='val')
+    data = CamVid(['/dataset/train', '/dataset/val'],
+                  ['/dataset/train_label', '/dataset/val_label'], '/dataset/class_dict.csv',
+                  (1024, 1024), loss='crossentropy', mode='val')
     from model.build_BiSeNet import BiSeNet
     from utils import reverse_one_hot, get_label_info, colour_code_segmentation, compute_global_accuracy
 
-    label_info = get_label_info('/data/sqy/CamVid/class_dict.csv')
+    label_info = get_label_info('/dataset/class_dict.csv')
     for i, (img, label) in enumerate(data):
         print(label.size())
         print(torch.max(label))

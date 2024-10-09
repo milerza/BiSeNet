@@ -97,8 +97,7 @@ def train(args, model, optimizer, dataloader_train, dataloader_val):
         writer.add_scalar('epoch/loss_epoch_train', float(loss_train_mean), epoch)
         print('loss for train : %f' % (loss_train_mean))
         if epoch % args.checkpoint_step == 0 and epoch != 0:
-            if not os.path.isdir(args.save_model_path):
-                os.mkdir(args.save_model_path)
+            os.makedirs(args.save_model_path, exist_ok=True)  # Ensure directory exists
             torch.save(model.module.state_dict(),
                        os.path.join(args.save_model_path, 'latest_dice_loss.pth'))
 
@@ -106,6 +105,7 @@ def train(args, model, optimizer, dataloader_train, dataloader_val):
             precision, miou = val(args, model, dataloader_val)
             if miou > max_miou:
                 max_miou = miou
+                os.makedirs(args.save_model_path, exist_ok=True) 
                 torch.save(model.module.state_dict(),
                            os.path.join(args.save_model_path, 'best_dice_loss.pth'))
             writer.add_scalar('epoch/precision_val', precision, epoch)
@@ -120,15 +120,15 @@ def main(params):
     parser.add_argument('--checkpoint_step', type=int, default=1, help='How often to save checkpoints (epochs)')
     parser.add_argument('--validation_step', type=int, default=1, help='How often to perform validation (epochs)')
     parser.add_argument('--dataset', type=str, default="CamVid", help='Dataset you are using.')
-    parser.add_argument('--crop_height', type=int, default=720, help='Height of cropped/resized input image to network')
-    parser.add_argument('--crop_width', type=int, default=960, help='Width of cropped/resized input image to network')
+    parser.add_argument('--crop_height', type=int, default=1024, help='Height of cropped/resized input image to network')
+    parser.add_argument('--crop_width', type=int, default=1024, help='Width of cropped/resized input image to network')
     parser.add_argument('--batch_size', type=int, default=1, help='Number of images in each batch')
     parser.add_argument('--context_path', type=str, default="resnet101",
                         help='The context path model you are using, resnet18, resnet101.')
     parser.add_argument('--learning_rate', type=float, default=0.01, help='learning rate used for train')
     parser.add_argument('--data', type=str, default='', help='path of training data')
     parser.add_argument('--num_workers', type=int, default=4, help='num of workers')
-    parser.add_argument('--num_classes', type=int, default=32, help='num of object classes (with void)')
+    parser.add_argument('--num_classes', type=int, default=10, help='num of object classes (with void)')
     parser.add_argument('--cuda', type=str, default='0', help='GPU ids used for training')
     parser.add_argument('--use_gpu', type=bool, default=True, help='whether to user gpu for training')
     parser.add_argument('--pretrained_model_path', type=str, default=None, help='path to pretrained model')
@@ -140,9 +140,9 @@ def main(params):
 
     # create dataset and dataloader
     train_path = [os.path.join(args.data, 'train'), os.path.join(args.data, 'val')]
-    train_label_path = [os.path.join(args.data, 'train_labels'), os.path.join(args.data, 'val_labels')]
+    train_label_path = [os.path.join(args.data, 'train_label'), os.path.join(args.data, 'val_label')]
     test_path = os.path.join(args.data, 'test')
-    test_label_path = os.path.join(args.data, 'test_labels')
+    test_label_path = os.path.join(args.data, 'test_label')
     csv_path = os.path.join(args.data, 'class_dict.csv')
     dataset_train = CamVid(train_path, train_label_path, csv_path, scale=(args.crop_height, args.crop_width),
                            loss=args.loss, mode='train')
@@ -194,16 +194,17 @@ def main(params):
 
 if __name__ == '__main__':
     params = [
-        '--num_epochs', '1000',
+        '--num_epochs', '20',
         '--learning_rate', '2.5e-2',
-        '--data', '/path/to/CamVid',
+        '--data', './dataset',
         '--num_workers', '8',
-        '--num_classes', '12',
+        '--num_classes', '10',
         '--cuda', '0',
         '--batch_size', '2',  # 6 for resnet101, 12 for resnet18
         '--save_model_path', './checkpoints_18_sgd',
         '--context_path', 'resnet18',  # only support resnet18 and resnet101
         '--optimizer', 'sgd',
+        '--loss', 'crossentropy'
 
     ]
     main(params)
