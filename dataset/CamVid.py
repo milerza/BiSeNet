@@ -4,6 +4,7 @@ import os
 from torchvision import transforms
 import cv2
 from PIL import Image
+import rasterio
 import pandas as pd
 import numpy as np
 from imgaug import augmenters as iaa
@@ -57,73 +58,73 @@ class CamVid(torch.utils.data.Dataset):
     def __getitem__(self, index):
         # load image and crop
         seed = random.random()
-        img = Image.open(self.image_list[index])
-        # random crop image
-        # =====================================
-        # w,h = img.size
-        # th, tw = self.scale
-        # i = random.randint(0, h - th)
-        # j = random.randint(0, w - tw)
-        # img = F.crop(img, i, j, th, tw)
-        # =====================================
+        with rasterio.open(self.image_list[index]) as img:
+            # random crop image
+            # =====================================
+            # w,h = img.size
+            # th, tw = self.scale
+            # i = random.randint(0, h - th)
+            # j = random.randint(0, w - tw)
+            # img = F.crop(img, i, j, th, tw)
+            # =====================================
 
-        scale = random.choice(self.scale)
-        scale = (int(self.image_size[0] * scale), int(self.image_size[1] * scale))
+            scale = random.choice(self.scale)
+            scale = (int(self.image_size[0] * scale), int(self.image_size[1] * scale))
 
-        # randomly resize image and random crop
-        # =====================================
-        if self.mode == 'train':
-            img = transforms.Resize(scale, Image.BILINEAR)(img)
-            img = RandomCrop(self.image_size, seed, pad_if_needed=True)(img)
-        # =====================================
+            # randomly resize image and random crop
+            # =====================================
+            if self.mode == 'train':
+                img = transforms.Resize(scale, Image.BILINEAR)(img)
+                img = RandomCrop(self.image_size, seed, pad_if_needed=True)(img)
+            # =====================================
 
-        img = np.array(img)
-        # load label
-        label = Image.open(self.label_list[index])
-
-
-        # crop the corresponding label
-        # =====================================
-        # label = F.crop(label, i, j, th, tw)
-        # =====================================
-
-        # randomly resize label and random crop
-        # =====================================
-        if self.mode == 'train':
-            label = transforms.Resize(scale, Image.NEAREST)(label)
-            label = RandomCrop(self.image_size, seed, pad_if_needed=True)(label)
-        # =====================================
-
-        label = np.array(label)
+            img = np.array(img)
+            # load label
+            label = Image.open(self.label_list[index])
 
 
-        # augment image and label
-        if self.mode == 'train':
-            seq_det = self.fliplr.to_deterministic()
-            img = seq_det.augment_image(img)
-            label = seq_det.augment_image(label)
+            # crop the corresponding label
+            # =====================================
+            # label = F.crop(label, i, j, th, tw)
+            # =====================================
+
+            # randomly resize label and random crop
+            # =====================================
+            if self.mode == 'train':
+                label = transforms.Resize(scale, Image.NEAREST)(label)
+                label = RandomCrop(self.image_size, seed, pad_if_needed=True)(label)
+            # =====================================
+
+            label = np.array(label)
 
 
-        # image -> [C, H, W]
-        img = Image.fromarray(img)
-        img = self.to_tensor(img).float()
+            # augment image and label
+            if self.mode == 'train':
+                seq_det = self.fliplr.to_deterministic()
+                img = seq_det.augment_image(img)
+                label = seq_det.augment_image(label)
 
-        if self.loss == 'dice':
-            # label -> [num_classes, H, W]
-            label = one_hot_it_v11_dice(label, self.label_info).astype(np.uint8)
 
-            label = np.transpose(label, [2, 0, 1]).astype(np.float32)
-            # label = label.astype(np.float32)
-            label = torch.from_numpy(label)
+            # image -> [C, H, W]
+            img = Image.fromarray(img)
+            img = self.to_tensor(img).float()
 
-            return img, label
+            if self.loss == 'dice':
+                # label -> [num_classes, H, W]
+                label = one_hot_it_v11_dice(label, self.label_info).astype(np.uint8)
 
-        elif self.loss == 'crossentropy':
-            label = one_hot_it_v11(label, self.label_info).astype(np.uint8)
-            # label = label.astype(np.float32)
-            label = torch.from_numpy(label).long()
+                label = np.transpose(label, [2, 0, 1]).astype(np.float32)
+                # label = label.astype(np.float32)
+                label = torch.from_numpy(label)
 
-            return img, label
+                return img, label
+
+            elif self.loss == 'crossentropy':
+                label = one_hot_it_v11(label, self.label_info).astype(np.uint8)
+                # label = label.astype(np.float32)
+                label = torch.from_numpy(label).long()
+
+                return img, label
 
     def __len__(self):
         return len(self.image_list)

@@ -24,13 +24,13 @@ def eval(model,dataloader, args, csv_path):
                 label = label.cuda()
             predict = model(data).squeeze()
             predict = reverse_one_hot(predict)
-            predict = np.array(predict.cpu())
+            predict = np.array(predict)
             # predict = colour_code_segmentation(np.array(predict), label_info)
 
             label = label.squeeze()
             if args.loss == 'dice':
                 label = reverse_one_hot(label)
-            label = np.array(label.cpu())
+            label = np.array(label)
             # label = colour_code_segmentation(np.array(label), label_info)
 
             precision = compute_global_accuracy(predict, label)
