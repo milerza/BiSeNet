@@ -75,6 +75,23 @@ class CamVid(torch.utils.data.Dataset):
             # randomly resize image and random crop
             # =====================================
             if self.mode == 'train':
+                # resample data to target shape
+                data = img.read(
+                    out_shape=(
+                        img.count,
+                        int(img.height * self.scale),
+                        int(img.width * self.scale)
+                    ),
+                    resampling=Resampling.bilinear
+                )
+                
+                # scale image transform
+                img = img.transform * img.transform.scale(
+                    (img.width / data.shape[-1]),
+                    (img.height / data.shape[-2])
+                )
+                
+                
                 img = transforms.Resize(scale, Resampling.bilinear)(img)
                 img = RandomCrop(self.image_size, seed, pad_if_needed=True)(img)
             # =====================================

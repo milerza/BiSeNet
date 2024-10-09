@@ -7,6 +7,7 @@ import pandas as pd
 import random
 import numbers
 import torchvision
+import rasterio
 
 def poly_lr_scheduler(optimizer, init_lr, iter, lr_decay_iter=1,
                       max_iter=300, power=0.9):
@@ -224,14 +225,14 @@ class RandomCrop(object):
 			PIL Image: Cropped image.
 		"""
 		if self.padding > 0:
-			img = torchvision.transforms.functional.pad(img, self.padding)
+			img = rasterio.pad(img, self.padding)
 
 		# pad the width if needed
 		if self.pad_if_needed and img.size[0] < self.size[1]:
-			img = torchvision.transforms.functional.pad(img, (int((1 + self.size[1] - img.size[0]) / 2), 0))
+			img = rasterio.pad(img, (int((1 + self.size[1] - img.size[0]) / 2), 0))
 		# pad the height if needed
 		if self.pad_if_needed and img.size[1] < self.size[0]:
-			img = torchvision.transforms.functional.pad(img, (0, int((1 + self.size[0] - img.size[1]) / 2)))
+			img = rasterio.pad(img, (0, int((1 + self.size[0] - img.size[1]) / 2)))
 
 		i, j, h, w = self.get_params(img, self.size, self.seed)
 
