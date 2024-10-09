@@ -11,6 +11,7 @@ from imgaug import augmenters as iaa
 import imgaug as ia
 from utils import get_label_info, one_hot_it, RandomCrop, reverse_one_hot, one_hot_it_v11, one_hot_it_v11_dice
 import random
+from rasterio.enums import Resampling
 
 def augmentation():
     # augment images with spatial transformation: Flip, Affine, Rotation, etc...
@@ -74,7 +75,7 @@ class CamVid(torch.utils.data.Dataset):
             # randomly resize image and random crop
             # =====================================
             if self.mode == 'train':
-                img = transforms.Resize(scale, rasterio.BILINEAR)(img)
+                img = transforms.Resize(scale, Resampling.bilinear)(img)
                 img = RandomCrop(self.image_size, seed, pad_if_needed=True)(img)
             # =====================================
 
@@ -91,7 +92,7 @@ class CamVid(torch.utils.data.Dataset):
             # randomly resize label and random crop
             # =====================================
             if self.mode == 'train':
-                label = transforms.Resize(scale, rasterio.NEAREST)(label)
+                label = transforms.Resize(scale, Resampling.nearest)(label)
                 label = RandomCrop(self.image_size, seed, pad_if_needed=True)(label)
             # =====================================
 
