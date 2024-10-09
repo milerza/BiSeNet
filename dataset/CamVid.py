@@ -91,8 +91,6 @@ class CamVid(torch.utils.data.Dataset):
                     (img.height / data.shape[-2])
                 )
                 
-                
-                img = transforms.Resize(scale, Resampling.bilinear)(img)
                 img = RandomCrop(self.image_size, seed, pad_if_needed=True)(img)
             # =====================================
 
