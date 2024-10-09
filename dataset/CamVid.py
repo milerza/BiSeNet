@@ -74,7 +74,7 @@ class CamVid(torch.utils.data.Dataset):
             # randomly resize image and random crop
             # =====================================
             if self.mode == 'train':
-                img = transforms.Resize(scale, Image.BILINEAR)(img)
+                img = transforms.Resize(scale, rasterio.BILINEAR)(img)
                 img = RandomCrop(self.image_size, seed, pad_if_needed=True)(img)
             # =====================================
 
@@ -91,7 +91,7 @@ class CamVid(torch.utils.data.Dataset):
             # randomly resize label and random crop
             # =====================================
             if self.mode == 'train':
-                label = transforms.Resize(scale, Image.NEAREST)(label)
+                label = transforms.Resize(scale, rasterio.NEAREST)(label)
                 label = RandomCrop(self.image_size, seed, pad_if_needed=True)(label)
             # =====================================
 
