@@ -57,7 +57,7 @@ class CamVid(torch.utils.data.Dataset):
     def __getitem__(self, index):
         # load image and crop
         seed = random.random()
-        img = Image.open(self.image_list[index])
+        img = Image.open(self.image_list[index]).convert('RGB')
         # random crop image
         # =====================================
         # w,h = img.size
