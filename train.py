@@ -29,13 +29,13 @@ def val(args, model, dataloader):
             # get RGB predict image
             predict = model(data).squeeze()
             predict = reverse_one_hot(predict)
-            predict = np.array(predict)
+            predict = np.array(predict.cpu())
 
             # get RGB label image
             label = label.squeeze()
             if args.loss == 'dice':
                 label = reverse_one_hot(label)
-            label = np.array(label)
+            label = np.array(label.cpu())
 
             # compute per pixel accuracy
 
