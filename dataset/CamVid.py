@@ -79,7 +79,7 @@ class CamVid(torch.utils.data.Dataset):
 
         img = np.array(img)
         # load label
-        label = Image.open(self.label_list[index])
+        label = Image.open(self.label_list[index]).convert('RGB')
 
 
         # crop the corresponding label
