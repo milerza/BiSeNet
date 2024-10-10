@@ -194,9 +194,9 @@ def main(params):
 
 if __name__ == '__main__':
     params = [
-        '--num_epochs', '1000',
+        '--num_epochs', '20',
         '--learning_rate', '2.5e-2',
-        '--data', '/path/to/CamVid',
+        '--data', './dataset',
         '--num_workers', '8',
         '--num_classes', '12',
         '--cuda', '0',
