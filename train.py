@@ -106,6 +106,8 @@ def train(args, model, optimizer, dataloader_train, dataloader_val):
             precision, miou = val(args, model, dataloader_val)
             if miou > max_miou:
                 max_miou = miou
+                if not os.path.exists(args.save_model_path):
+                    os.makedirs(args.save_model_path)
                 torch.save(model.module.state_dict(),
                            os.path.join(args.save_model_path, 'best_dice_loss.pth'))
             writer.add_scalar('epoch/precision_val', precision, epoch)
