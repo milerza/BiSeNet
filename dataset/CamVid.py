@@ -79,8 +79,8 @@ class CamVid(torch.utils.data.Dataset):
                 data = img.read(
                     out_shape=(
                         img.count,
-                        int(img.height * scale),
-                        int(img.width * scale)
+                        int(img.height * scale[0]),
+                        int(img.width * scale[0])
                     ),
                     resampling=Resampling.bilinear
                 )
